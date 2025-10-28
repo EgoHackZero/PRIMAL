@@ -3,9 +3,7 @@ import time
 from ACNet_pytorch import ACNet, test_gradients, test_gradient_flow_all, benchmark_gpu, test_gpu_memory
 
 def run_all_tests(grid_size=10, a_size=5):
-    """
-    Запускає всі тести моделі
-    """
+
     print("\n=== Starting All Tests ===\n")
     
     print("Creating model...")
@@ -91,4 +89,5 @@ if __name__ == "__main__":
         for batch_size, metrics in results["gpu_results"]["benchmark"].items():
             print(f"Batch size {batch_size}:")
             print(f"  Average time: {metrics['avg_time_ms']:.2f} ms")
+
             print(f"  Throughput: {metrics['throughput']:.2f} samples/sec")
