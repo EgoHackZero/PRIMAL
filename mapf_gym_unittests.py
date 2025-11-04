@@ -2,6 +2,11 @@ import unittest
 import mapf_gym as MAPF_Env
 import numpy as np
 
+def step_agent(env, action):
+    obs, reward, terminated, truncated, info = env.step(action)
+    done = terminated or truncated
+    return obs, reward, done, info.get("next_actions"), info.get("on_goal"), info.get("blocking"), info.get("valid_action")
+
 
 # Agent 1
 num_agents1 = 1
@@ -152,7 +157,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv1 = MAPF_Env.MAPFEnv(num_agents1, world0=np.array(world1), goals0=np.array(goals1))
         s0 = gameEnv1.world.state.copy()
         # return state, reward, done, nextActions, on_goal, blocking, valid_action
-        s1, r, d, _, o_g, _, _ = gameEnv1.step((1,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv1, (1,0))
         s2 = gameEnv1.world.state.copy()
         self.assertEqual(r, MAPF_Env.IDLE_COST)
         self.assertFalse(d)
@@ -162,7 +167,7 @@ class MAPFTests(unittest.TestCase):
     def testIdle2(self):
         gameEnv2 = MAPF_Env.MAPFEnv(num_agents2, world0=np.array(world2), goals0=np.array(goals2))
         s0 = gameEnv2.world.state.copy()
-        s1, r, d, _, o_g, _, _ = gameEnv2.step((1,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv2, (1,0))
         s2 = gameEnv2.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertTrue(d)
@@ -173,14 +178,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,0))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,0))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.IDLE_COST)
         self.assertFalse(d)
@@ -191,14 +196,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=False)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,0))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,0))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.IDLE_COST)
         self.assertFalse(d)
@@ -210,7 +215,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv1 = MAPF_Env.MAPFEnv(num_agents1, world0=np.array(world1), goals0=np.array(goals1))
         s0 = gameEnv1.world.state.copy()
         # return state, reward, done, nextActions, on_goal
-        s1, r, d, _, o_g, _, _ = gameEnv1.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv1, (1,1))
         s2 = gameEnv1.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertTrue(d)
@@ -220,7 +225,7 @@ class MAPFTests(unittest.TestCase):
     def test_move_east2(self):
         gameEnv2 = MAPF_Env.MAPFEnv(num_agents2, world0=np.array(world2), goals0=np.array(goals2))
         s0 = gameEnv2.world.state.copy()
-        s1, r, d, _, o_g, _, _ = gameEnv2.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv2, (1,1))
         s2 = gameEnv2.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertTrue(d)
@@ -231,14 +236,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,1))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,1))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -249,14 +254,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,1))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,1))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -267,14 +272,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,1))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,1))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -285,14 +290,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,1))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,1))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,1))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -304,7 +309,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv1 = MAPF_Env.MAPFEnv(num_agents1, world0=np.array(world1), goals0=np.array(goals1))
         s0 = gameEnv1.world.state.copy()
         # return state, reward, done, nextActions, on_goal
-        s1, r, d, _, o_g, _, _ = gameEnv1.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv1, (1,2))
         s2 = gameEnv1.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -314,7 +319,7 @@ class MAPFTests(unittest.TestCase):
     def test_move_north2(self):
         gameEnv2 = MAPF_Env.MAPFEnv(num_agents2, world0=np.array(world2), goals0=np.array(goals2))
         s0 = gameEnv2.world.state.copy()
-        s1, r, d, _, o_g, _, _ = gameEnv2.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv2, (1,2))
         s2 = gameEnv2.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertTrue(d)
@@ -325,14 +330,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,2))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,2))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertTrue(d)
@@ -343,14 +348,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,2))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertTrue(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,2))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertTrue(d)
@@ -361,14 +366,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,2))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,2))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertFalse(d)
@@ -379,14 +384,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,2))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertTrue(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,2))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,2))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -398,7 +403,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv1 = MAPF_Env.MAPFEnv(num_agents1, world0=np.array(world1), goals0=np.array(goals1))
         s0 = gameEnv1.world.state.copy()
         # return state, reward, done, nextActions, on_goal
-        s1, r, d, _, o_g, _, _ = gameEnv1.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv1, (1,3))
         s2 = gameEnv1.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -408,7 +413,7 @@ class MAPFTests(unittest.TestCase):
     def test_move_west2(self):
         gameEnv2 = MAPF_Env.MAPFEnv(num_agents2, world0=np.array(world2), goals0=np.array(goals2))
         s0 = gameEnv2.world.state.copy()
-        s1, r, d, _, o_g, _, _ = gameEnv2.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv2, (1,3))
         s2 = gameEnv2.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertTrue(d)
@@ -419,14 +424,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,3))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,3))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -437,14 +442,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,3))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,3))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -455,14 +460,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,3))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,3))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -473,14 +478,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,3))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,3))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,3))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -492,7 +497,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv1 = MAPF_Env.MAPFEnv(num_agents1, world0=np.array(world1), goals0=np.array(goals1))
         s0 = gameEnv1.world.state.copy()
         # return state, reward, done, nextActions, on_goal
-        s1, r, d, _, o_g, _, _ = gameEnv1.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv1, (1,4))
         s2 = gameEnv1.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -502,7 +507,7 @@ class MAPFTests(unittest.TestCase):
     def test_move_south2(self):
         gameEnv2 = MAPF_Env.MAPFEnv(num_agents2, world0=np.array(world2), goals0=np.array(goals2))
         s0 = gameEnv2.world.state.copy()
-        s1, r, d, _, o_g, _, _ = gameEnv2.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv2, (1,4))
         s2 = gameEnv2.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertTrue(d)
@@ -513,14 +518,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,4))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,4))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -531,14 +536,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv3 = MAPF_Env.MAPFEnv(num_agents3, world0=np.array(world3), goals0=np.array(goals3))
         s0 = gameEnv3.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((2,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (2,4))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv3.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv3, (1,4))
         s2 = gameEnv3.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -549,14 +554,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,4))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,4))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -567,14 +572,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4))
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,4))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,4))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,4))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -586,14 +591,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -604,14 +609,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -622,14 +627,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -640,14 +645,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -658,14 +663,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -676,14 +681,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -694,14 +699,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,8))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,8))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertTrue(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,8))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,8))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -712,14 +717,14 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,8))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,8))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
         self.assertFalse(o_g)
         self.assertEqual(np.sum(s0), np.sum(s2))
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,8))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,8))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -732,7 +737,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -740,7 +745,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(2,gameEnv4.world.state[4,5])
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -752,7 +757,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -760,7 +765,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(2,gameEnv4.world.state[4,3])
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -771,7 +776,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,8))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,8))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -779,7 +784,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(2,gameEnv4.world.state[3,4])
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -791,7 +796,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -799,7 +804,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(2,gameEnv4.world.state[4,3])
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -811,7 +816,7 @@ class MAPFTests(unittest.TestCase):
         gameEnv4 = MAPF_Env.MAPFEnv(num_agents4, world0=np.array(world4), goals0=np.array(goals4),DIAGONAL_MOVEMENT=True)
         s0 = gameEnv4.world.state.copy()
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,5))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,5))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)
@@ -819,7 +824,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(1,gameEnv4.world.state[4,4])
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -827,7 +832,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))    
         self.assertEqual(2,gameEnv4.world.state[3,4])    
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -835,7 +840,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))    
         self.assertEqual(2,gameEnv4.world.state[3,4])  
         # Agent 1
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,7))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,7))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.GOAL_REWARD)
         self.assertFalse(d)
@@ -843,7 +848,7 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))
         self.assertEqual(1,gameEnv4.world.state[3,3])
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.COLLISION_REWARD)
         self.assertFalse(d)
@@ -851,9 +856,9 @@ class MAPFTests(unittest.TestCase):
         self.assertEqual(np.sum(s0), np.sum(s2))    
         self.assertEqual(2,gameEnv4.world.state[3,4])  
         #after waiting, we should be able to cross diagonally
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((1,0))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (1,0))
         # Agent 2
-        s1, r, d, _, o_g, _, _ = gameEnv4.step((2,6))
+        s1, r, d, _, o_g, _, _ = step_agent(gameEnv4, (2,6))
         s2 = gameEnv4.world.state.copy()
         self.assertEqual(r, MAPF_Env.ACTION_COST)
         self.assertFalse(d)

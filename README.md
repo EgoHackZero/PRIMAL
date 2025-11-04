@@ -51,16 +51,27 @@ Hotkeys:
 - up/down arrows: change size
 - p: pause inference
 
+### Environment setup
+
+A reproducible Python 3.11 environment is provided in `environment.yml`. Create it with:
+
+```bash
+conda env create -f environment.yml
+conda activate primal
+```
+
+After activating the environment, build the Cython extension in `od_mstar3` as described above before running the project.
+
 ### Requirements
-- Python 3.4
-- Cython 0.28.4
-- OpenAI Gym 0.9.4
-- Tensorflow 1.3.1
-- Numpy 1.13.3
+- Python 3.11
+- TensorFlow 2.15 (running in `tf.compat.v1` mode)
+- OpenAI Gym 0.26
+- NumPy 1.26
+- Cython
 - matplotlib
-- imageio (for GIFs creation)
+- imageio (for GIF creation)
 - tk
-- networkx (if using od_mstar.py and not the C++ version)
+- networkx (if using `od_mstar.py` instead of the C++ version)
 
 ### Authors
 

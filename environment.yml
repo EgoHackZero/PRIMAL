@@ -1,0 +1,16 @@
+name: primal
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - numpy=1.26.*
+  - cython
+  - matplotlib
+  - imageio
+  - networkx
+  - tk
+  - scipy
+  - pip:
+      - tensorflow==2.15.0
+      - gym==0.26.2

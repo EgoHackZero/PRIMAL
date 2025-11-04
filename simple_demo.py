@@ -4,9 +4,13 @@ Simple demonstration of PRIMAL environment
 This script creates a basic multi-agent pathfinding scenario and runs it
 """
 
-from od_mstar3 import cpp_mstar
 import mapf_gym as MAPF_Env
 import numpy as np
+try:
+    from od_mstar3 import cpp_mstar
+except ImportError:
+    cpp_mstar = None
+from od_mstar3 import od_mstar as py_mstar
 
 def create_simple_scenario():
     """Create a simple 2-agent pathfinding scenario"""
@@ -62,7 +66,8 @@ def run_manual_simulation():
         
         # Execute all actions
         for agent_id, action in actions:
-            state, reward, done, _, on_goal, _, _ = env.step((agent_id, action))
+            state, reward, done, truncated, info = env.step((agent_id, action))
+            on_goal = info.get("on_goal", False)
         
         if step % 5 == 0:
             print(f"Step {step}: Agents are navigating...")
@@ -97,8 +102,11 @@ def test_cpp_pathfinder():
     print(f"Agents goals: {goals}")
     
     try:
-        # Call C++ pathfinder
-        paths = cpp_mstar.find_path(world, init_pos, goals, inflation=1.0, time_limit=10.0)
+        # Call C++ pathfinder if available, otherwise fall back to Python implementation
+        if cpp_mstar is not None:
+            paths = cpp_mstar.find_path(world, init_pos, goals, inflation=1.0, time_limit=10.0)
+        else:
+            paths = py_mstar.find_path(world, init_pos, goals, connect_8=True, time_limit=10.0)
         
         print(f"\n✅ Found path with {len(paths[0])} steps for agent 1")
         print(f"✅ Found path with {len(paths[1])} steps for agent 2")
@@ -132,4 +140,3 @@ if __name__ == "__main__":
     print("- Check mapf_gym.py for environment implementation")
     print("- Run mapf_gym_unittests.py for more test scenarios")
     print("=" * 60 + "\n")
-

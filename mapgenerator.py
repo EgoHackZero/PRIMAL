@@ -15,6 +15,7 @@ dirDict = {0:(0,0),1:(0,1),2:(1,0),3:(0,-1),4:(-1,0),5:(1,1),6:(1,-1),7:(-1,-1),
 if DYNAMIC_TESTING:
     import tensorflow as tf
     from ACNet import ACNet
+    tf.compat.v1.disable_eager_execution()
     
 def init(data):
     data.size=10
@@ -43,12 +44,15 @@ def init(data):
     data.ID+=1
     if DYNAMIC_TESTING:
         data.rnn_states=[]
-        data.sess=tf.Session()
+        data.sess=tf.compat.v1.Session()
         data.network=ACNet("global",5,None,False,10,"global")
         #load the weights from the checkpoint (only the global ones!)
-        ckpt = tf.train.get_checkpoint_state(model_path)
-        saver = tf.train.Saver()
-        saver.restore(data.sess,ckpt.model_checkpoint_path)        
+        ckpt = tf.compat.v1.train.get_checkpoint_state(model_path)
+        saver = tf.compat.v1.train.Saver()
+        try:
+            saver.restore(data.sess,ckpt.model_checkpoint_path)
+        except (tf.errors.NotFoundError, AttributeError):
+            raise RuntimeError("Checkpoint is missing or incompatible with the current network definition. Retrain the network to generate a new checkpoint.")
         
 def getDir(action):
     return dirDict[action]

@@ -7,6 +7,8 @@ import mapf_gym_cap as mapf_gym
 import time
 from od_mstar3.col_set_addition import OutOfTimeError,NoSolutionError
 
+tf.compat.v1.disable_eager_execution()
+
 results_path="primal_results"
 environment_path="saved_environments"
 if not os.path.exists(results_path):
@@ -19,14 +21,17 @@ class PRIMAL(object):
     '''
     def __init__(self,model_path,grid_size):
         self.grid_size=grid_size
-        config = tf.ConfigProto(allow_soft_placement = True)
+        config = tf.compat.v1.ConfigProto(allow_soft_placement = True)
         config.gpu_options.allow_growth=True
-        self.sess=tf.Session(config=config)
+        self.sess=tf.compat.v1.Session(config=config)
         self.network=ACNet("global",5,None,False,grid_size,"global")
         #load the weights from the checkpoint (only the global ones!)
-        ckpt = tf.train.get_checkpoint_state(model_path)
-        saver = tf.train.Saver()
-        saver.restore(self.sess,ckpt.model_checkpoint_path)
+        ckpt = tf.compat.v1.train.get_checkpoint_state(model_path)
+        saver = tf.compat.v1.train.Saver()
+        try:
+            saver.restore(self.sess,ckpt.model_checkpoint_path)
+        except (tf.errors.NotFoundError, AttributeError):
+            raise RuntimeError("Checkpoint is missing or incompatible with the current network definition. Retrain the network to generate a compatible checkpoint.")
         
     def set_env(self,gym):
         self.num_agents=gym.num_agents
