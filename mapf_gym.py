@@ -8,7 +8,12 @@ from matplotlib.colors import hsv_to_rgb
 import random
 import math
 import copy
-from od_mstar3 import cpp_mstar
+try:
+    from od_mstar3 import cpp_mstar
+except ImportError:
+    cpp_mstar = None
+cpp_mstar = None
+from od_mstar3 import od_mstar as py_mstar
 from od_mstar3.col_set_addition import NoSolutionError, OutOfTimeError
 # from gym.envs.classic_control import rendering        
 
@@ -159,7 +164,7 @@ class State(object):
 class MAPFEnv(gym.Env):
     def getFinishReward(self):
         return FINISH_REWARD
-    metadata = {"render.modes": ["human", "ansi"]}
+    metadata = {"render_modes": ["human", "ansi"]}
 
     # Initialize env
     def __init__(self, num_agents=1, observation_size=10,world0=None, goals0=None, DIAGONAL_MOVEMENT=False, SIZE=(10,40), PROB=(0,.5), FULL_HELP=False,blank_world=False):
@@ -490,12 +495,17 @@ class MAPFEnv(gym.Env):
         for (i,j) in robots:
             world[i,j]=1
         try:
-            path=cpp_mstar.find_path(world,[start],[goal],1,5)
+            path=self._find_path(world,start,goal)
         except NoSolutionError:
             path=None
         for (i,j) in robots:
             world[i,j]=0
         return path
+
+    def _find_path(self, world, start, goal):
+        if cpp_mstar is not None:
+            return cpp_mstar.find_path(world,[start],[goal],1,5)
+        return py_mstar.find_path(world,[start],[goal],connect_8=self.DIAGONAL_MOVEMENT,time_limit=5)
     
     def get_blocking_reward(self,agent_id):
         '''calculates how many robots the agent is preventing from reaching goal
@@ -622,6 +632,39 @@ class MAPFEnv(gym.Env):
         # Unlock mutex
         self.mutex.release()
         return state, reward, done, nextActions, on_goal, blocking, valid_action
+
+    def step(self, action_input):
+        observation, reward, done, next_actions, on_goal, blocking, valid_action = self._step(action_input)
+        info = {
+            "next_actions": next_actions,
+            "on_goal": on_goal,
+            "blocking": blocking,
+            "valid_action": valid_action,
+        }
+        return observation, reward, done, False, info
+
+    def reset(self, *, seed=None, options=None):
+        if seed is not None:
+            super().reset(seed=seed)
+        options = options or {}
+        agent_id = options.get("agent_id", 1)
+        world0 = options.get("world0")
+        goals0 = options.get("goals0")
+        blank_world = options.get("blank_world", False)
+        self.finished = False
+        self.mutex.acquire()
+        self._setWorld(world0, goals0, blank_world=blank_world)
+        self.fresh = True
+        self.mutex.release()
+        if self.viewer is not None:
+            self.viewer = None
+        on_goal = self.world.getPos(agent_id) == self.world.getGoal(agent_id)
+        next_actions = self._listNextValidActions(agent_id)
+        info = {
+            "next_actions": next_actions,
+            "on_goal": on_goal,
+        }
+        return self._observe(agent_id), info
 
     def _listNextValidActions(self, agent_id, prev_action=0,episode=0):
         available_actions = [0] # staying still always allowed
