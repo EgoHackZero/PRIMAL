@@ -1,0 +1,14 @@
+psutil
+collection
+
+torch
+torchvision
+torchaudio
+--index-url https://download.pytorch.org/whl/cu121
+
+tqdm
+cloudpickle
+mpire
+
+Pillow
+pyyaml
