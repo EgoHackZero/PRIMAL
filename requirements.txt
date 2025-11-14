@@ -1,14 +1,17 @@
+# Basic dependencies
+numpy
 psutil
-collection
-
-torch
-torchvision
-torchaudio
---index-url https://download.pytorch.org/whl/cu121
-
 tqdm
 cloudpickle
 mpire
-
 Pillow
 pyyaml
+matplotlib
+imageio
+gym
+
+# PyTorch with CUDA 12.1 support
+# Install separately with: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+torch
+torchvision
+torchaudio

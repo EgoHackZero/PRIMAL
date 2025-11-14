@@ -67,16 +67,15 @@ class PrimalEnvWrapper:
 
     def reset(self):
         # Recreates env with random map size while keeping agent count and obstacle density range.
-        size_min, size_max = self.env.SIZE
-        world_size = np.random.randint(size_min, size_max + 1)
+        world_size = np.random.choice([10, 40, 70], p=[0.5, 0.25, 0.25])
 
         prob_range = self.env.PROB
 
         self.env = MAPFEnv(
             num_agents=self.num_agents,
             observation_size=self.observation_size,
-            SIZE=(world_size, world_size),              
-            PROB=prob_range,                            
+            SIZE=(world_size, world_size),
+            PROB=prob_range,
             DIAGONAL_MOVEMENT=self.env.DIAGONAL_MOVEMENT,
             FULL_HELP=self.env.FULL_HELP,
         )

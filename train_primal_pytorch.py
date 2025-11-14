@@ -26,7 +26,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Hyperparams
 GRID_SIZE = 10
-NUM_AGENTS = 4
+NUM_AGENTS = 8
 A_SIZE = 5          
 
 GAMMA = 0.95        
