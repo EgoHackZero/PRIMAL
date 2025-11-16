@@ -1,5 +1,5 @@
-import gym
-from gym import spaces
+import gymnasium
+from gymnasium import spaces
 import numpy as np
 from collections import OrderedDict
 from threading import Lock
@@ -21,7 +21,7 @@ from od_mstar3.col_set_addition import NoSolutionError, OutOfTimeError
         5:NE, 6:SE, 7:SW, 8:NW}
     Reward: ACTION_COST for each action, GOAL_REWARD when robot arrives at target
 '''
-ACTION_COST, IDLE_COST, GOAL_REWARD, COLLISION_REWARD,FINISH_REWARD,BLOCKING_COST = -0.3, -.5, 0.0, -2.,20.,-1.
+ACTION_COST, IDLE_COST, GOAL_REWARD, COLLISION_REWARD,FINISH_REWARD,BLOCKING_COST = -0.3, -.5, 0.0, -2.,20.,-2.
 opposite_actions = {0: -1, 1: 3, 2: 4, 3: 1, 4: 2, 5: 7, 6: 8, 7: 5, 8: 6}
 JOINT = False # True for joint estimation of rewards for closeby agents
 dirDict = {0:(0,0),1:(0,1),2:(1,0),3:(0,-1),4:(-1,0),5:(1,1),6:(1,-1),7:(-1,-1),8:(-1,1)}

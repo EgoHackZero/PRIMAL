@@ -17,7 +17,7 @@ from primal_env_wrapper import PrimalEnvWrapper
 
 DEVICE_GLOBAL = torch.device("cpu")
 GRID_SIZE   = int(os.getenv("PRIMAL_GRID", "10"))
-NUM_AGENTS  = int(os.getenv("PRIMAL_N", "4"))
+NUM_AGENTS  = int(os.getenv("PRIMAL_N", "8"))
 A_SIZE      = 5
 
 GAMMA        = 0.95
