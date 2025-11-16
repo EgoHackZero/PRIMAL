@@ -1,5 +1,6 @@
 import os
 import random
+from tqdm import tqdm
 import time
 from collections import deque
 
@@ -388,7 +389,7 @@ def train():
 
     il_ok = il_fail = 0
 
-    for ep in range(1, MAX_EPISODES + 1):
+    for ep in tqdm(range(1, MAX_EPISODES + 1)):
         for g in optimizer.param_groups:
             g["lr"] = BASE_LR / np.sqrt(ep)
 

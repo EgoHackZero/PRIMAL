@@ -1,5 +1,6 @@
 # Basic dependencies
 numpy
+tqdm
 psutil
 tqdm
 cloudpickle
