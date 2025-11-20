@@ -1,13 +1,11 @@
 import numpy as np
 import torch
+import os
 
 from mapf_gym import MAPFEnv
 
 
 class PrimalEnvWrapper:
-    # Wrapper over MAPFEnv:
-    # creates env with needed obs size
-    # provides obs for all agents formatted for ACNet (torch tensors)
     def __init__(
         self,
         num_agents=4,
@@ -18,6 +16,16 @@ class PrimalEnvWrapper:
         full_help=False,
         device=None,
     ):
+        self.num_agents = num_agents
+        self.observation_size = observation_size
+        self.initial_size = size
+        self.initial_prob = prob
+        self.diagonal_movement = diagonal_movement
+        self.full_help = full_help
+        self.device = device or torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
+        
         self.env = MAPFEnv(
             num_agents=num_agents,
             observation_size=observation_size,
@@ -26,31 +34,21 @@ class PrimalEnvWrapper:
             DIAGONAL_MOVEMENT=diagonal_movement,
             FULL_HELP=full_help,
         )
-        self.num_agents = num_agents
-        self.observation_size = observation_size
-        self.device = device or torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
+        
 
-    # main function: retrieve obs/goal for all agents
+        self.reset()
+
+        # print("✓✓✓ AFTER RESET - env shape:", self.env.world.state)
 
     def get_all_agent_observations(self):
-        """
-        Возвращает:
-          obs_tensor:  [N, 4, obs_size, obs_size]  (float32)
-          goal_tensor: [N, 3]                       (float32)
-        где N = num_agents.
-        """
         obs_list = []
         goals_list = []
 
         for agent_id in range(1, self.num_agents + 1):
             (channels, goal_vec) = self.env._observe(agent_id)
-            # channels = [poss_map, goal_map, goals_map, obs_map]
-
             processed = [np.asarray(ch, dtype=np.float32) for ch in channels]
-            maps = np.stack(processed, axis=0)  # [4, H, W]
-            goal = np.asarray(goal_vec, dtype=np.float32)  # [3]
+            maps = np.stack(processed, axis=0)
+            goal = np.asarray(goal_vec, dtype=np.float32)
 
             obs_list.append(maps)
             goals_list.append(goal)
@@ -63,26 +61,46 @@ class PrimalEnvWrapper:
 
         return obs_tensor, goal_tensor
 
-    # --------- reset / step ---------
-
     def reset(self):
-        # Recreates env with random map size while keeping agent count and obstacle density range.
-        world_size = np.random.choice([10, 40, 70], p=[0.5, 0.25, 0.25])
+        use_maze = np.random.random() < 0.2
+        maze_path = os.path.join("saved_environments", "maze.csv")
+        
+        if use_maze and os.path.exists(maze_path):
+            try:
+                maze_raw = np.loadtxt(maze_path, delimiter=';', dtype=np.int32, encoding='utf-8-sig')
+                
+                maze_obstacles = np.where(maze_raw == 0, -1, 0)
+                if np.sum(maze_obstacles == 0) < self.num_agents * 2:
+                    use_maze = False
+                else:
+                    self.env = MAPFEnv(
+                        num_agents=self.num_agents,
+                        observation_size=self.observation_size,
+                        world0=maze_obstacles.copy(),
+                        goals0=None,
+                        SIZE=maze_obstacles.shape,
+                        PROB=self.initial_prob,
+                        DIAGONAL_MOVEMENT=self.diagonal_movement,
+                        FULL_HELP=self.full_help,
+                        blank_world=True
+                    )
+                    return self.get_all_agent_observations()
+            except Exception as e:
+                use_maze = False
+        
+        if not use_maze:
+            world_size = np.random.choice([10, 40, 70], p=[0.5, 0.25, 0.25])
 
-        prob_range = self.env.PROB
-
-        self.env = MAPFEnv(
-            num_agents=self.num_agents,
-            observation_size=self.observation_size,
-            SIZE=(world_size, world_size),
-            PROB=prob_range,                            
-            DIAGONAL_MOVEMENT=self.env.DIAGONAL_MOVEMENT,
-            FULL_HELP=self.env.FULL_HELP,
-        )
+            self.env = MAPFEnv(
+                num_agents=self.num_agents,
+                observation_size=self.observation_size,
+                SIZE=(world_size, world_size),
+                PROB=self.initial_prob,
+                DIAGONAL_MOVEMENT=self.diagonal_movement,
+                FULL_HELP=self.full_help,
+            )
 
         return self.get_all_agent_observations()
-
-
 
     def step_single_agent(self, agent_id, action):
         (state, reward, done, _, on_goal, blocking, valid_action) = \
@@ -124,7 +142,6 @@ class PrimalEnvWrapper:
             on_goal_list.append(float(on_goal))
             blocking_list.append(float(blocking))
             valid_action_list.append(float(valid_action))
-            # self.prev_actions[agent_id-1] = int(action)
 
         obs_tensor, goal_tensor = self.get_all_agent_observations()
 
