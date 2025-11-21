@@ -32,6 +32,7 @@ NUM_WORKERS        = int(os.getenv("PRIMAL_WORKERS", "4"))
 GRAD_CLIP          = float(os.getenv("PRIMAL_GRAD_CLIP", "40.0"))
 SAVE_EVERY         = int(os.getenv("PRIMAL_SAVE_EVERY", "1000"))
 CKPT_DIR           = os.getenv("PRIMAL_CKPT_DIR", "checkpoints")
+RESUME_FROM        = os.getenv("PRIMAL_RESUME_FROM", None)  # Path to checkpoint to resume from
 os.makedirs(CKPT_DIR, exist_ok=True)
 
 METRICS_WINDOW     = int(os.getenv("PRIMAL_METR_WIN", "100"))
@@ -421,7 +422,40 @@ def main():
     global_model.share_memory()
     optimizer = SharedAdam(global_model.parameters(), lr=BASE_LR)
 
-    global_ep = mp.Value('i', 0)
+    start_episode = 0
+
+    # Load checkpoint if RESUME_FROM is specified
+    if RESUME_FROM:
+        print(f"Loading checkpoint from {RESUME_FROM}...", flush=True)
+        checkpoint = torch.load(RESUME_FROM, map_location=DEVICE_GLOBAL)
+
+        # Load model state
+        if 'model_state_dict' in checkpoint:
+            global_model.load_state_dict(checkpoint['model_state_dict'])
+            print("Model state loaded successfully", flush=True)
+        else:
+            print("Warning: 'model_state_dict' not found in checkpoint", flush=True)
+
+        # Load optimizer state if available
+        if 'optimizer_state_dict' in checkpoint:
+            optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+            print("Optimizer state loaded successfully", flush=True)
+
+        # Get episode number
+        if 'episode' in checkpoint:
+            start_episode = checkpoint['episode']
+            print(f"Resuming from episode {start_episode}", flush=True)
+        else:
+            # Try to extract episode number from filename
+            import re
+            match = re.search(r'ep(\d+)', RESUME_FROM)
+            if match:
+                start_episode = int(match.group(1))
+                print(f"Extracted episode {start_episode} from filename", flush=True)
+            else:
+                print("Warning: Could not determine episode number, starting from 0", flush=True)
+
+    global_ep = mp.Value('i', start_episode)
     done_flag = mp.Value('i', 0)
 
     metrics_q = mp.Queue(maxsize=2000)
