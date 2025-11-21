@@ -25,7 +25,7 @@ ENTROPY_BETA0= float(os.getenv("PRIMAL_ENT_BETA", "0.01"))
 BASE_LR      = float(os.getenv("PRIMAL_LR", "2e-5"))
 
 MAX_EPISODES       = int(os.getenv("PRIMAL_MAX_EP", "100000"))
-MAX_STEPS_PER_EP   = int(os.getenv("PRIMAL_MAX_STEPS", "256")) 
+MAX_STEPS_PER_EP   = int(os.getenv("PRIMAL_MAX_STEPS", "1000")) 
 P_IL               = float(os.getenv("PRIMAL_P_IL", "0.5"))    
 IL_TIME_LIMIT      = int(os.getenv("PRIMAL_IL_TL", "60"))       
 NUM_WORKERS        = int(os.getenv("PRIMAL_WORKERS", "4"))
