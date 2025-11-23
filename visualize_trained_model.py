@@ -145,7 +145,7 @@ class PRIMALVisualizer:
 
         # Episode data
         self.episode_step = 0
-        self.max_steps = 1000
+        self.max_steps = 100000
         self.done = False
 
         # Colors for agents (HSV to RGB)
@@ -545,7 +545,7 @@ Examples:
     parser.add_argument('mode', nargs='?', default='paths',
                         choices=['paths', 'gif', 'interactive', 'show'],
                         help='Visualization mode (default: paths)')
-    parser.add_argument('output_file', nargs='?', default=None,
+    parser.add_argument('--output', type=str, default=None,
                         help='Output filename (PNG for paths mode, GIF for gif mode)')
     parser.add_argument('--map', type=str, default=None,
                         help='Path to saved map (CSV for obstacles only, NPY for full environment)')
@@ -563,11 +563,11 @@ Examples:
     args = parser.parse_args()
 
     # Set default output filename based on mode
-    if args.output_file is None:
+    if args.output is None:
         if args.mode == 'gif':
-            args.output_file = 'primal_demo.gif'
+            args.output = 'primal_demo.gif'
         elif args.mode == 'paths':
-            args.output_file = 'primal_paths.png'
+            args.output = 'primal_paths.png'
 
     # Load custom map if provided
     custom_world = None
@@ -625,11 +625,11 @@ Examples:
     elif args.mode == 'show':
         viz.run_animated(interval=200, save_gif=None, show_plot=True)
     elif args.mode == 'gif':
-        viz.run_animated(interval=200, save_gif=args.output_file, show_plot=False)
-        print(f"\n[DONE] GIF saved to: {args.output_file}")
+        viz.run_animated(interval=200, save_gif=args.output, show_plot=False)
+        print(f"\n[DONE] GIF saved to: {args.output}")
     else:  # 'paths' or default
-        viz.run_and_save_paths(output_path=args.output_file)
-        print(f"\n[DONE] Paths image saved to: {args.output_file}")
+        viz.run_and_save_paths(output_path=args.output)
+        print(f"\n[DONE] Paths image saved to: {args.output}")
 
 
 if __name__ == "__main__":
