@@ -10,7 +10,6 @@ Reinforcement learning code to train multiple agents to collaboratively plan the
 - [Resume Training](#resume-training-from-checkpoint)
 - [File Structure](#file-structure)
 - [Requirements](#requirements)
-- [Authors](#authors)
 
 ## Quick Start
 
