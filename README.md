@@ -2,8 +2,6 @@
 
 Reinforcement learning code to train multiple agents to collaboratively plan their paths in a 2D grid world, as well as to test/visualize the learned policy on handcrafted scenarios.
 
-**NEW**: Please try the [brand new online interactive demo](https://primalgrid.netlify.app/primal) of our trained PRIMAL model! You can customize the grid size, add/remove obstacle, add agents and assign them goals, and finally run the model online and see the results.
-
 ## Table of Contents
 
 - [Quick Start](#quick-start)
@@ -437,9 +435,3 @@ pip install gymnasium numpy matplotlib imageio pillow networkx
 - imageio (for GIFs creation)
 - tk
 - networkx (if using od_mstar.py and not the C++ version)
-
-## Authors
-
-[Guillaume Sartoretti](guillaume.sartoretti@gmail.com)
-
-[Justin Kerr](jgkerr@andrew.cmu.edu)
